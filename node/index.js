@@ -1,49 +1,61 @@
-const http = require("http");
+const express=require('express');
+
 const fs = require("fs");
+
 let index = fs.readFileSync("node/index.html", "utf-8");
 let data = JSON.parse(fs.readFileSync("node/data.json", "utf-8"));
 let products = data.products;
-const server = http.createServer((req, res) => {
-  console.log("server started");
-  console.log(req.url,req.method);
-  res.setHeader("dummy", "value");
 
-  if (req.url.startsWith("/product") && !(req.url.endsWith('/product'))) {
-    console.log("inside if");
-    const id = req.url.split("/")[2];
-    const product = products.find((p) => p.id === +id);
-    console.log(product);
-    res.setHeader("Content-Type", "text/html");
-    let modifiedIndex = index
-      .replace("**title**", product.title)
-      .replace("**price**", product.price);
-    res.end(modifiedIndex);
-  } else {
-    switch (req.url) {
-      case "/":
-        res.setHeader("Content-Type", "text/html");
-        res.end(index);
-        break;
+const server=express();
 
-      case "/api":
-        res.setHeader("Content-Type", "application/json");
-        res.end(JSON.stringify(data));
-        break;
+server.use(express.json());
 
-      case "/product":
-        res.setHeader("Content-Type", "text/html");
-        let modifiedIndex = index
-          .replace("**title**", products[0].title)
-          .replace("**price**", products[0].price);
-        res.end(modifiedIndex);
-        break;
+const auth=(req,res,next)=>{
 
-      default:
-        res.writeHead(404, "invalid route");
-        res.end("<h1>Invalid route</h1>");
-        break;
+    console.log(req.body);
+    if(req.body.password=='123'){
+        next();
     }
-  }
-});
+    else{
+        res.sendStatus(401);
+    }
 
-server.listen(8080);
+}
+// server.use(auth);
+
+//middlewares
+server.use((req,res,next)=>{
+    console.log(req.method,req.ip,req.hostname);
+
+
+    //next will pass the control to next step otherwise code will stuck here
+    next();
+
+})
+
+server.get('/login',auth,(req,res)=>{
+    res.send('login complete');
+})
+
+server.get('/',auth,(req,res)=>{
+    res.send('helloji GetRequest with auth');
+})
+server.post('/',(req,res)=>{
+    res.send('helloji PostRequest');
+})
+server.patch('/',(req,res)=>{
+    res.send('helloji PatchRequest');
+})
+server.put('/',(req,res)=>{
+    res.send('helloji PUtRequest');
+})
+server.delete('/',(req,res)=>{
+    res.send('helloji deleteRequest');
+})
+
+
+
+
+server.listen(8080,()=>{
+    console.log("server started");
+});
