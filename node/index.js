@@ -8,50 +8,76 @@ let products = data.products;
 
 const server=express();
 
-server.use(express.json());
+server.use(express.json());  //body parser
 
-const auth=(req,res,next)=>{
 
+//CRUD api
+
+//create api (post)
+server.post('/products',(req,res)=>{
     console.log(req.body);
-    if(req.body.password=='123'){
-        next();
-    }
-    else{
-        res.sendStatus(401);
-    }
-
-}
-// server.use(auth);
-
-//middlewares
-server.use((req,res,next)=>{
-    console.log(req.method,req.ip,req.hostname);
-
-
-    //next will pass the control to next step otherwise code will stuck here
-    next();
-
+    products.push(req.body);
+    res.json(req.body);
 })
 
-server.get('/login',auth,(req,res)=>{
-    res.send('login complete');
+
+//read api
+server.get('/products',(req,res)=>{
+    res.json(products);
+})
+server.get('/products/:id',(req,res)=>{
+    const id=+(req.params.id);
+    const product=products.find((p)=>p.id===id)
+    res.json(product);
 })
 
-server.get('/',auth,(req,res)=>{
-    res.send('helloji GetRequest with auth');
+
+
+
+//update (put,patch)
+
+//overwrite in put
+server.put('/products/:id',(req,res)=>{
+    const id=+(req.params.id);
+    const productIndex=products.findIndex((p)=>p.id===id)
+    products.splice(productIndex,1,{...req.body,id:id});
+    res.status(201).json(products);
+    
 })
-server.post('/',(req,res)=>{
-    res.send('helloji PostRequest');
+
+//update only those products
+server.patch('/products/:id',(req,res)=>{
+    const id=+(req.params.id);
+    const productIndex=products.findIndex((p)=>p.id===id);
+    const product=products[productIndex];
+    products.splice(productIndex,1,{...product,...req.body});
+    res.status(201).json(products);
+    
 })
-server.patch('/',(req,res)=>{
-    res.send('helloji PatchRequest');
+
+
+
+
+//delete
+server.delete('/products/:id',(req,res)=>{
+    const id=+(req.params.id);
+    const productIndex=products.findIndex((p)=>p.id===id);
+    const product=products[productIndex];
+    products.splice(productIndex,1);
+    res.status(201).json(product);
+    
 })
-server.put('/',(req,res)=>{
-    res.send('helloji PUtRequest');
-})
-server.delete('/',(req,res)=>{
-    res.send('helloji deleteRequest');
-})
+
+
+
+
+
+
+
+
+
+
+
 
 
 
