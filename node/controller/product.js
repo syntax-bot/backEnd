@@ -2,6 +2,7 @@ const model = require("../model/product");
 const Product = model.Product;
 
 exports.createProduct = (req, res) => {
+  console.log(req.body);
   const newData = new Product(req.body);
   newData
     .save()

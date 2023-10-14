@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose=require('mongoose');
+const cors=require('cors');
 
 main().catch((err)=>{console.log(err)});
 
@@ -11,7 +12,7 @@ async function main(){
 
 const server = express();
 
-
+server.use(cors());
 //bodyparser
 server.use(express.json());
 
