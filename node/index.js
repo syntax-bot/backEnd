@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose=require('mongoose');
 const cors=require('cors');
 
+
 main().catch((err)=>{console.log(err)});
 
 async function main(){
@@ -10,20 +11,19 @@ async function main(){
 }
 
 
-const server = express();
-
-server.use(cors());
-//bodyparser
-server.use(express.json());
-
-
-
-
-const productRouter=require('./routes/products')
-server.use('/products',productRouter.router);
-
+const productRouter=require('./routes/products');
 const userRouter=require('./routes/user');
+
+const server = express();
+server.use(cors());
+server.use(express.json());
+server.use(express.static('node/build'));
+server.use('/products',productRouter.router);
 server.use('/users',userRouter.router);
+server.use('*',(req,res)=>{
+  //need to provide abolute path
+  res.sendFile(__dirname+'/build/index.html');
+})
 
 
 server.listen(8080, () => {
